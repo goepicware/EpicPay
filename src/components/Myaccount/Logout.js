@@ -16,6 +16,7 @@ class Logout extends Component {
 
     localStorage.removeItem("company_id");
     localStorage.removeItem("company_app_id");
+    localStorage.removeItem("company_logo");
     localStorage.removeItem("selectedcompany_data");
 
     //this.props.history.push("/");
