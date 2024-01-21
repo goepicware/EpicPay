@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 30">
+<g id="Cart">
+<rect x="0.5" y="0.5" width="29" height="29" rx="4.5" fill="#EBEBEB" fill-opacity="0.5"/>
+<g id="Buy">
+<path id="Stroke 1" fill-rule="evenodd" clip-rule="evenodd" d="M11.0411 21.6484C11.4061 21.6484 11.7027 21.9517 11.7027 22.3247C11.7027 22.6978 11.4061 23.0001 11.0411 23.0001C10.6762 23.0001 10.3804 22.6978 10.3804 22.3247C10.3804 21.9517 10.6762 21.6484 11.0411 21.6484Z" stroke="#676767" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Stroke 3" fill-rule="evenodd" clip-rule="evenodd" d="M20.7729 21.6484C21.1379 21.6484 21.4346 21.9517 21.4346 22.3247C21.4346 22.6978 21.1379 23.0001 20.7729 23.0001C20.408 23.0001 20.1113 22.6978 20.1113 22.3247C20.1113 21.9517 20.408 21.6484 20.7729 21.6484Z" stroke="#676767" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Stroke 5" d="M7 7L8.79891 7.31824L9.63177 17.4605C9.69923 18.2871 10.3747 18.9218 11.1859 18.9218H20.6233C21.3982 18.9218 22.0555 18.3401 22.1671 17.5551L22.9878 11.7578C23.089 11.0426 22.5467 10.4026 21.8402 10.4026H9.08777" stroke="#676767" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Stroke 7" d="M16.8384 13.6695H19.2366" stroke="#676767" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<rect x="0.5" y="0.5" width="29" height="29" rx="4.5" stroke="#EBEBEB"/>
+</g>
+</svg>
