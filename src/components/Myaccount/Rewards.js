@@ -120,7 +120,7 @@ class Rewards extends Component {
     /*let membership_spent_amount = (customerData.membership_spent_amount != '' && customerData.membership_spent_amount != null)?parseInt(
       customerData.membership_spent_amount
     ):0;*/
-    let membership_spent_amount = (customerData.custmap_earned_credits != '' && customerData.custmap_earned_credits != null) ? parseFloat(customerData.custmap_earned_credits):0;
+    let membership_spent_amount = (customerData.custmap_earned_points != '' && customerData.custmap_earned_points != null) ? parseFloat(customerData.custmap_earned_points):0;
     let calcMemberPerc = 0;
     if (Object.keys(rewardsettingsData).length > 0) {
       let indxVal = Object.keys(rewardsettingsData).length - 1;
