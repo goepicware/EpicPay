@@ -1,16 +1,9 @@
 /* eslint-disable */
 import React, { Component } from "react";
-import { Link, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import axios from "axios";
-
 import Header from "../Layout/Header";
-import Footer from "../Layout/Footer";
-
 import cookie from "react-cookies";
-import { GET_STATICBLOCKS_LIST } from "../../actions";
-import { apiUrl, unquieID } from "../Settings/Config";
-
 import OwlCarousel from "react-owl-carousel2";
 import "../../common/css/owl.carousel.css";
 
@@ -24,7 +17,6 @@ import piz from "../../common/images/Pizza.png";
 import op1 from "../../common/images/outlet-place.png";
 import op2 from "../../common/images/outlet-place1.png";
 import lik from "../../common/images/liked.svg";
-import lfill from "../../common/images/liked-fill.svg";
 
 var Parser = require("html-react-parser");
 
@@ -58,8 +50,6 @@ class Company extends Component {
     if (cookie.load("UserId") === undefined) {
       props.history.push("/");
     }
-
-    this.props.getStaticblocksList("&slug=terms-conditions");
   }
   componentDidMount() {
     //$("body").addClass("hide-overlay");
@@ -114,27 +104,27 @@ class Company extends Component {
               <h3>Recent visits</h3>
               <OwlCarousel options={foodbanner}>
                 <div className="img-round">
-                  <a href="#">
+                  <a href={void 0}>
                     <img src={chn} />
                   </a>
                 </div>
                 <div className="img-round">
-                  <a href="#">
+                  <a href={void 0}>
                     <img src={bur} />
                   </a>
                 </div>
                 <div className="img-round">
-                  <a href="#">
+                  <a href={void 0}>
                     <img src={cke} />
                   </a>
                 </div>
                 <div className="img-round">
-                  <a href="#">
+                  <a href={void 0}>
                     <img src={piz} />
                   </a>
                 </div>
                 <div className="img-round">
-                  <a href="#">
+                  <a href={void 0}>
                     <img src={ndle} />
                   </a>
                 </div>
@@ -145,52 +135,52 @@ class Company extends Component {
               <div className="fav-tab-nav">
                 <ul>
                   <li>
-                    <a href="#">Favourite</a>
+                    <a href={void 0}>Favourite</a>
                   </li>
                   <li className="active">
-                    <a href="#">Food & Drinks</a>
+                    <a href={void 0}>Food & Drinks</a>
                   </li>
                   <li>
-                    <a href="#">Fashion & Lifestyle</a>
+                    <a href={void 0}>Fashion & Lifestyle</a>
                   </li>
                 </ul>
               </div>
               <div className="fav-tab-content">
                 <ul>
                   <li>
-                    <a href="#" className="love-it">
+                    <a href={void 0} className="love-it">
                       <img src={lik} />
                     </a>
-                    <a href="#" className="main-cover">
+                    <a href={void 0} className="main-cover">
                       <img src={op1} />
                       <p>Pastamania</p>
                     </a>
                     <div className="color-tag">Visited</div>
                   </li>
                   <li>
-                    <a href="#" className="love-it">
+                    <a href={void 0} className="love-it">
                       <img src={lik} />
                     </a>
-                    <a href="#" className="main-cover">
+                    <a href={void 0} className="main-cover">
                       <img src={op2} />
                       <p>Mrs Pho</p>
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="love-it">
+                    <a href={void 0} className="love-it">
                       <img src={lik} />
                     </a>
-                    <a href="#" className="main-cover">
+                    <a href={void 0} className="main-cover">
                       <img src={op1} />
                       <p>Canadian</p>
                     </a>
                     <div className="color-tag">Visited</div>
                   </li>
                   <li>
-                    <a href="#" className="love-it">
+                    <a href={void 0} className="love-it">
                       <img src={lik} />
                     </a>
-                    <a href="#" className="main-cover">
+                    <a href={void 0} className="main-cover">
                       <img src={op2} />
                       <p>Ambok Solok</p>
                     </a>
@@ -218,11 +208,7 @@ const mapStateTopProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    getStaticblocksList: (params) => {
-      dispatch({ type: GET_STATICBLOCKS_LIST, params });
-    },
-  };
+  return "";
 };
 export default connect(
   mapStateTopProps,

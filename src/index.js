@@ -29,6 +29,9 @@ import VoucherRedeem from "./components/Myaccount/VoucherRedeem";
 import PointsRedeem from "./components/Myaccount/PointsRedeem";
 import Termsandconditions from "./components/Myaccount/Termsandconditions";
 import Usershare from "./components/Myaccount/Usershare";
+import Subscription from "./components/Myaccount/Subscription";
+import HowToWork from "./components/Myaccount/HowToWork";
+
 import Refpage from "./components/Myaccount/Refpage";
 import Logout from "./components/Myaccount/Logout";
 
@@ -48,7 +51,7 @@ root.render(
         <Route path="/myaccount" component={Myaccount} />
         <Route path="/topup" component={Topup} />
         <Route exact path="/checkout" component={Checkout} />
-		    <Route exact path="/placeorder" component={Placeorder} />
+        <Route exact path="/placeorder" component={Placeorder} />
         <Route exact path="/rewards" component={Rewards} />
         <Route exact path="/vouchers/:slugValue" component={voucherDetail} />
         <Route exact path="/vouchers" component={Vouchers} />
@@ -56,10 +59,11 @@ root.render(
         <Route exact path="/redeem" component={VoucherRedeem} />
         <Route exact path="/redeempts" component={PointsRedeem} />
         <Route exact path="/terms-conditions" component={Termsandconditions} />
+        <Route exact path="/subscription" component={Subscription} />
+        <Route exact path="/how-it-works" component={HowToWork} />
 
         <Route exact path="/history" component={History} />
         <Route exact path="/memberinfo" component={TierBenefits} />
-        
 
         <Route exact path="/voucher-more" component={VoucherReadmore} />
         <Route exact path="/allvoucher-more" component={voucherDetail} />

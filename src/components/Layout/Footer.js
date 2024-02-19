@@ -38,8 +38,8 @@ class Footer extends Component {
             <Link to={"/topup"} title="Topup" className="active">
               <img src={topup} /> <span>Top up</span>
             </Link>
-            <Link to={"/rewards"} title="Rewards">
-              <img src={crown} /> <span>Rewards</span>
+            <Link to={"/subscription"} title="Subscription">
+              <img src={crown} /> <span>Subscription</span>
             </Link>
             <Link to={"/vouchers"} title="Vouchers">
               <figure>

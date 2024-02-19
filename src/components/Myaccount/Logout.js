@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import cookie from "react-cookies";
-import { apiUrl, unquieID, baseUrl } from "../Settings/Config";
+import { baseUrl } from "../Settings/Config";
 
 class Logout extends Component {
   componentWillMount() {
@@ -9,7 +9,7 @@ class Logout extends Component {
     cookie.remove("UserLname");
     cookie.remove("UserMobile");
     cookie.remove("UserEmail");
-    
+
     cookie.remove("IsVerifiedUser");
     cookie.remove("triggerOTP");
     cookie.remove("triggerFrom");
@@ -18,12 +18,11 @@ class Logout extends Component {
     localStorage.removeItem("company_app_id");
     localStorage.removeItem("company_logo");
     localStorage.removeItem("selectedcompany_data");
+    localStorage.removeItem("token");
 
-    //this.props.history.push("/");
     setTimeout(function () {
       window.location.href = baseUrl;
     }, 0);
-
   }
 
   render() {

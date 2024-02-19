@@ -2,35 +2,18 @@
 import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import axios from "axios";
-import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import cookie from "react-cookies";
-import {
-  IonContent,
-  IonButtons,
-  IonButton,
-  IonFooter,
-  IonTitle,
-  IonToolbar,
-} from "@ionic/react";
+import { IonFooter } from "@ionic/react";
 import "@ionic/react/css/core.css";
 import Header from "../Layout/Header";
-import Footer from "../Layout/Footer";
-
 import {
   GET_CUSTOMER_DETAILS,
   GET_REWARDSETTING_LIST,
   GET_PROMOTION_LIST,
 } from "../../actions";
-import { apiUrl, unquieID } from "../Settings/Config";
-
-import user from "../../common/images/user.svg";
-import nav from "../../common/images/navigation.svg";
-
-import ot from "../../common/images/outlet-place.png";
+import { unquieID } from "../Settings/Config";
 import coin from "../../common/images/coin.svg";
-import back from "../../common/images/back-arrow.svg";
 import chati from "../../common/images/chat.svg";
 import infoi from "../../common/images/info.svg";
 

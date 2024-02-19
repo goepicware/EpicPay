@@ -15,18 +15,3 @@ export const SET_PROMOTION_LIST = "setPromotionList";
 
 export const GET_GLOBAL_SETTINGS = "getGlobalSettings";
 export const SET_GLOBAL_SETTINGS = "setGlobalSettings";
-export const GET_STORE_LIST = "getStoreList";
-export const SET_STORE_LIST = "setStoretList";
-export const GET_STORE_DETAILS = "getStoreDetails";
-export const SET_STORE_DETAILS = "setStoretDetails";
-export const GET_CATEGORY_LIST = "getCategoryList";
-export const SET_CATEGORY_LIST = "setCategorytList";
-export const GET_PRODUCT_DETAIL = "getProductDetail";
-export const SET_PRODUCT_DETAIL = "setProductDetail";
-
-export const GET_LISTDATA = "getListData";
-export const SET_LISTDATA = "setListData";
-export const GET_DETAILDATA = "getDetailData";
-export const SET_DETAILDATA = "setDetailData";
-export const GET_FORMPOST = "getFormPost";
-export const SET_FORMPOST = "setFormPost";

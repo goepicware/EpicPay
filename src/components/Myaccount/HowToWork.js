@@ -10,12 +10,12 @@ class TierBenefits extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      current_page: "Tier Benefits",
+      current_page: "How It Works",
       staticblocksList: [],
-      activemember: "bronze-member",
-      bronzememberInfo: "",
-      goldmemberInfo: "",
-      platinummemberInfo: "",
+      activetab: "demo-credits",
+      democredits: "",
+      demopoints: "",
+      demovouchers: "",
     };
 
     if (cookie.load("UserId") === undefined) {
@@ -26,10 +26,6 @@ class TierBenefits extends Component {
       props.history.push("/home");
     }
   }
-  componentDidMount() {
-    //$("body").addClass("hide-overlay");
-  }
-
   componentWillReceiveProps(PropsDt) {
     if (this.state.staticblocksList !== PropsDt.staticblocks) {
       this.setState({ staticblocksList: PropsDt.staticblocks }, function () {
@@ -40,62 +36,56 @@ class TierBenefits extends Component {
 
   setMemberInfo() {
     let staticblocksList = this.state.staticblocksList;
-    let bronzememberInfo = "";
-    let goldmemberInfo = "";
-    let platinummemberInfo = "";
+    let democredits = "";
+    let demopoints = "";
+    let demovouchers = "";
     if (Object.keys(staticblocksList).length > 0) {
       staticblocksList.map((staticblock) => {
-        if (staticblock.staticblocks_slug == "bronze-member") {
-          bronzememberInfo = staticblock.staticblocks_description;
+        if (staticblock.staticblocks_slug == "demo-credits") {
+          democredits = staticblock.staticblocks_description;
         }
-        if (staticblock.staticblocks_slug == "gold-member") {
-          goldmemberInfo = staticblock.staticblocks_description;
+        if (staticblock.staticblocks_slug == "demo-points") {
+          demopoints = staticblock.staticblocks_description;
         }
-        if (staticblock.staticblocks_slug == "platinum-member") {
-          platinummemberInfo = staticblock.staticblocks_description;
+        if (staticblock.staticblocks_slug == "demo-vouchers") {
+          demovouchers = staticblock.staticblocks_description;
         }
         return staticblock;
       });
     }
 
     this.setState({
-      bronzememberInfo: bronzememberInfo,
-      goldmemberInfo: goldmemberInfo,
-      platinummemberInfo: platinummemberInfo,
+      democredits: democredits,
+      demopoints: demopoints,
+      demovouchers: demovouchers,
     });
   }
 
   memberInfoHtml() {
-    let memberInfo = "";
-    if (this.state.activemember == "bronze-member") {
-      memberInfo =
-        this.state.bronzememberInfo !== ""
-          ? Parser(this.state.bronzememberInfo)
-          : "";
+    let demoContent = "";
+    if (this.state.activetab == "demo-credits") {
+      demoContent =
+        this.state.democredits !== "" ? Parser(this.state.democredits) : "";
     }
-    if (this.state.activemember == "gold-member") {
-      memberInfo =
-        this.state.goldmemberInfo !== ""
-          ? Parser(this.state.goldmemberInfo)
-          : "";
+    if (this.state.activetab == "demo-points") {
+      demoContent =
+        this.state.demopoints !== "" ? Parser(this.state.demopoints) : "";
     }
-    if (this.state.activemember == "platinum-member") {
-      memberInfo =
-        this.state.platinummemberInfo !== ""
-          ? Parser(this.state.platinummemberInfo)
-          : "";
+    if (this.state.activetab == "demo-vouchers") {
+      demoContent =
+        this.state.demovouchers !== "" ? Parser(this.state.demovouchers) : "";
     }
-    return <>{memberInfo}</>;
+    return <>{demoContent}</>;
   }
 
   nevMemberFun(tabTxt, event) {
     event.preventDefault();
-    this.setState({ activemember: tabTxt });
+    this.setState({ activetab: tabTxt });
   }
 
   render() {
     let staticblocksList = this.state.staticblocksList;
-    let activemember = this.state.activemember;
+    let activetab = this.state.activetab;
     return (
       <div className="main-div">
         <Header mainpagestate={this.state} prntPagePrps={this.props} />
@@ -106,24 +96,22 @@ class TierBenefits extends Component {
               <div className="vouchers-nav tier-benefit-nav">
                 <ul>
                   <li
-                    className={activemember == "bronze-member" ? "active" : ""}
-                    onClick={this.nevMemberFun.bind(this, "bronze-member")}
+                    className={activetab == "demo-credits" ? "active" : ""}
+                    onClick={this.nevMemberFun.bind(this, "demo-credits")}
                   >
-                    <a href={void 0}>Bronze</a>{" "}
+                    <a href={void 0}>Credits</a>{" "}
                   </li>
                   <li
-                    className={activemember == "gold-member" ? "active" : ""}
-                    onClick={this.nevMemberFun.bind(this, "gold-member")}
+                    className={activetab == "demo-points" ? "active" : ""}
+                    onClick={this.nevMemberFun.bind(this, "demo-points")}
                   >
-                    <a href={void 0}>Gold</a>{" "}
+                    <a href={void 0}>Points</a>{" "}
                   </li>
                   <li
-                    className={
-                      activemember == "platinum-member" ? "active" : ""
-                    }
-                    onClick={this.nevMemberFun.bind(this, "platinum-member")}
+                    className={activetab == "demo-vouchers" ? "active" : ""}
+                    onClick={this.nevMemberFun.bind(this, "demo-vouchers")}
                   >
-                    <a href={void 0}>Platinum</a>{" "}
+                    <a href={void 0}>Vouchers</a>{" "}
                   </li>
                 </ul>
               </div>

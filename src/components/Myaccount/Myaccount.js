@@ -47,7 +47,7 @@ class Myaccount extends Component {
       "&customer_id=" + customerId + "&common_setting=yes"
     );
     this.props.getMissionsList(
-      "&mission_type=" + missiontype + "&customer_id=" + customerId
+      "mission_type=" + missiontype + "&customer_id=" + customerId
     );
     this.props.getRewardSettingList("&customer_id=" + customerId);
   }
@@ -131,7 +131,7 @@ class Myaccount extends Component {
     return strTime;
   }
 
-  rewardProLst(membership_spent_amount, calcMemberPerc) {
+  rewardProLst(membership_spent_amount) {
     if (this.state.rewardsettingsdata.length > 0) {
       const rewardsettingsHtml = this.state.rewardsettingsdata.map(
         (rewardsettings, rwInt) => {
@@ -156,6 +156,26 @@ class Myaccount extends Component {
           );
         }
       );
+
+      let calcMemberPerc = 0;
+      let indxVal = Object.keys(this.state.rewardsettingsdata).length - 1;
+      let membership_max_amount = parseInt(
+        this.state.rewardsettingsdata[indxVal].reward_pointstoreach
+      );
+
+      if (membership_max_amount) {
+        if (
+          parseFloat(membership_spent_amount) >
+          parseFloat(membership_max_amount)
+        ) {
+          calcMemberPerc = 100;
+        } else {
+          calcMemberPerc =
+            (membership_spent_amount / membership_max_amount) * 100;
+        }
+      }
+
+      calcMemberPerc = calcMemberPerc;
 
       return (
         <>
@@ -213,6 +233,12 @@ class Myaccount extends Component {
     let customerData = this.state.customerData;
     let missionList = this.state.missionList;
     if (Object.keys(customerData).length > 0) {
+      let availablePoints =
+        customerData.custmap_available_points != "" &&
+        customerData.custmap_available_points != null &&
+        customerData.custmap_available_points != undefined
+          ? customerData.custmap_available_points
+          : 0;
       let enableMembership = "No";
       let calcMemberPerc = 0;
       let membership_max_amount = 0;
@@ -290,36 +316,26 @@ class Myaccount extends Component {
                 </div>
               </div>
 
-              {enableMembership == "Yes" && (
-                <div className="wallet-btm margin-to-hide">
-                  <div className="wallet-btm-lhs">
-                    <strong>
-                      {customerData.customer_membership_displayname}{" "}
-                    </strong>
-                    <h2>
-                      {membership_spent_amount} <img src={coin} />
-                    </h2>
-                  </div>
-                  <div className="wallet-btm-rhs">
-                    <a
-                      href={void 0}
-                      className="button"
-                      onClick={this.goToNavPage.bind(this, "rewards")}
-                    >
-                      View
-                    </a>
-                  </div>
-                  <div className="wallet-btm-full">
-                    <div
-                      className="wallet-progress"
-                      style={{ width: calcMemberPerc + "%" }}
-                    ></div>
-                  </div>
+              <div className="wallet-btm margin-to-hide">
+                <div className="wallet-btm-lhs">
+                  <strong>Available Points</strong>
+                  <h2>
+                    {availablePoints} <img src={coin} />
+                  </h2>
                 </div>
-              )}
+                <div className="wallet-btm-rhs">
+                  <a
+                    href={void 0}
+                    className="button"
+                    onClick={this.goToNavPage.bind(this, "vouchers")}
+                  >
+                    Rewards
+                  </a>
+                </div>
+              </div>
 
               <div className="upcoming-trans">
-                {this.rewardProLst(membership_spent_amount, calcMemberPerc)}
+                {this.rewardProLst(membership_spent_amount)}
               </div>
               {Object.keys(missionList).length > 0 && (
                 <div className="monthly-rewards">

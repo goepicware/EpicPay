@@ -3,36 +3,25 @@ import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import axios from "axios";
-
-import {
-  IonContent,
-  IonButtons,
-  IonButton,
-  IonFooter,
-  IonTitle,
-  IonToolbar,
-} from "@ionic/react";
+import { IonFooter } from "@ionic/react";
 import "@ionic/react/css/core.css";
 
 import cookie from "react-cookies";
-import { GET_CUSTOMER_DETAILS, GET_PRODUCT_LIST, GET_PROMOTION_LIST } from "../../actions";
-import { apiUrl, unquieID } from "../Settings/Config";
+import {
+  GET_CUSTOMER_DETAILS,
+  GET_PRODUCT_LIST,
+  GET_PROMOTION_LIST,
+} from "../../actions";
+import { apiUrl, unquieID, headerconfig } from "../Settings/Config";
 import Header from "../Layout/Header";
-import Footer from "../Layout/Footer";
-import "../../common/css/owl.carousel.css";
-
-import user from "../../common/images/user.svg";
-import nav from "../../common/images/navigation.svg";
-
 import coin from "../../common/images/coin.svg";
-
 import noImage from "../../common/images/no-image.jpg";
 import gui from "../../common/images/guide.png";
 
 class Vouchers extends Component {
   constructor(props) {
     super(props);
-    
+
     var vouchersShow =
       cookie.load("vouchers_show") != "" &&
       cookie.load("vouchers_show") != undefined
@@ -40,32 +29,38 @@ class Vouchers extends Component {
         : "all";
 
     var vouchersFrom =
-        cookie.load("vouchers_from") != "" &&
-        cookie.load("vouchers_from") != undefined
-          ? cookie.load("vouchers_from")
-          : "category";    
+      cookie.load("vouchers_from") != "" &&
+      cookie.load("vouchers_from") != undefined
+        ? cookie.load("vouchers_from")
+        : "category";
 
-    var selectedcompanyData = (localStorage.getItem('selectedcompany_data') === null || unquieID == '') ? '' : localStorage.getItem('selectedcompany_data');
-    selectedcompanyData = (selectedcompanyData !== '' && selectedcompanyData !== undefined) ? JSON.parse(selectedcompanyData) : [];   
-    var categoryList = (localStorage.getItem('categoryList') === null || unquieID == '') ? '' : localStorage.getItem('categoryList');
-    categoryList = (categoryList !== '' && categoryList !== undefined) ? JSON.parse(categoryList) : [];  
-    var catApiStatus = (localStorage.getItem('catApiStatus') === null || unquieID == '') ? '' : localStorage.getItem('catApiStatus');
-    catApiStatus = (catApiStatus !== '' && catApiStatus !== undefined) ? JSON.parse(catApiStatus) : [];   
-    
-    let catApiStatusArr = Array();
-    const categoryHtml = categoryList.map((category, rwInt) => {
-        catApiStatusArr['cat_'+category.cate_id] = {'apistatus':'initail','prodata':[]};
-      return category;
-    });
+    var selectedcompanyData =
+      localStorage.getItem("selectedcompany_data") === null || unquieID == ""
+        ? ""
+        : localStorage.getItem("selectedcompany_data");
+    selectedcompanyData =
+      selectedcompanyData !== "" && selectedcompanyData !== undefined
+        ? JSON.parse(selectedcompanyData)
+        : [];
+
+    var catApiStatus =
+      localStorage.getItem("catApiStatus") === null || unquieID == ""
+        ? ""
+        : localStorage.getItem("catApiStatus");
+    catApiStatus =
+      catApiStatus !== "" && catApiStatus !== undefined
+        ? JSON.parse(catApiStatus)
+        : [];
+
     this.state = {
       current_page: "Vouchers",
       actionfrom: vouchersFrom,
       activetab: vouchersShow,
       selectedcompany_data: selectedcompanyData,
-      category_list: categoryList,
-      selected_cate_id: 'companycat',
-      catapi_status: catApiStatusArr,
-      proapi_status: 'inital',
+      category_list: [],
+      selected_cate_id: "companycat",
+      catapi_status: [],
+      proapi_status: "inital",
       productList: [],
       promotionlist: [],
       available_promo_count: 0,
@@ -78,8 +73,8 @@ class Vouchers extends Component {
       props.history.push("/");
     }
 
-    if(unquieID == '') {
-            props.history.push("/home");
+    if (unquieID == "") {
+      props.history.push("/home");
     }
 
     if (cookie.load("vouchers_show") !== undefined) {
@@ -92,19 +87,22 @@ class Vouchers extends Component {
 
     var customerId = cookie.load("UserId");
     this.props.getCustomerDetails("&customer_id=" + customerId);
-    this.props.getProductList("&product_type=5");
+    this.props.getProductList("app_id=" + unquieID + "&product_type=5");
     this.props.getPromotionList("&customer_id=" + cookie.load("UserId"));
-    this.getCatProductData();
+    this.loadCategory();
   }
   componentDidMount() {
     //$("body").addClass("hide-overlay");
   }
   componentWillReceiveProps(PropsDt) {
-    if(this.state.customerData !== PropsDt.customerdetails) {
-        this.setState({ customerData: PropsDt.customerdetails });
+    if (this.state.customerData !== PropsDt.customerdetails) {
+      this.setState({ customerData: PropsDt.customerdetails });
     }
     if (this.state.productList !== PropsDt.productlist) {
-      this.setState({ productList: PropsDt.productlist, proapi_status: 'done' });
+      this.setState({
+        productList: PropsDt.productlist,
+        proapi_status: "done",
+      });
     }
     if (this.state.promotionlist !== PropsDt.promotionlist) {
       let availablePromo = Array();
@@ -130,35 +128,79 @@ class Vouchers extends Component {
     }
   }
 
+  loadCategory() {
+    axios
+      .get(apiUrl + "companycategory/productcategories", headerconfig)
+      .then((res) => {
+        if (res.data.status === "ok") {
+          let catApiStatusArr = Array();
+          res.data.result_set.map((category) => {
+            catApiStatusArr["cat_" + category.cate_id] = {
+              apistatus: "initail",
+              prodata: [],
+            };
+            return category;
+          });
+          this.setState(
+            {
+              category_list: res.data.result_set,
+              catapi_status: catApiStatusArr,
+            },
+            function () {
+              this.getCatProductData();
+            }
+          );
+        }
+      });
+  }
+
   getCatProductData() {
     let categoryList = this.state.category_list;
     let catapiStatus = this.state.catapi_status;
-    if(Object.keys(categoryList).length > 0) {
-    const categoryHtml = categoryList.map((category, rwInt) => {
-        let catapiData = (catapiStatus['cat_'+category.cate_id] != undefined && catapiStatus['cat_'+category.cate_id] != '') ? catapiStatus['cat_'+category.cate_id] : [];
-        if(Object.keys(catapiData).length > 0) {
-            this.getProductData(category.cate_id);
+    if (Object.keys(categoryList).length > 0) {
+      const categoryHtml = categoryList.map((category, rwInt) => {
+        let catapiData =
+          catapiStatus["cat_" + category.cate_id] != undefined &&
+          catapiStatus["cat_" + category.cate_id] != ""
+            ? catapiStatus["cat_" + category.cate_id]
+            : [];
+        if (Object.keys(catapiData).length > 0) {
+          this.getProductData(category.cate_id);
         }
         return category;
-    });
+      });
     }
   }
 
   getProductData(cat_id) {
     let catapiStatus = this.state.catapi_status;
-    let catapiData = (catapiStatus['cat_'+cat_id] != undefined && catapiStatus['cat_'+cat_id] != '') ? catapiStatus['cat_'+cat_id] : [];
+    let catapiData =
+      catapiStatus["cat_" + cat_id] != undefined &&
+      catapiStatus["cat_" + cat_id] != ""
+        ? catapiStatus["cat_" + cat_id]
+        : [];
     //showLoaderLst('trans-page-inner','class');
-    axios.get(apiUrl + "products/products_list?company_category="+cat_id)
-    .then((res) => {
-      //hideLoaderLst('trans-page-inner','class');
-      if(res.data.status === "ok") {
-        catapiStatus['cat_'+cat_id] = {'apistatus':'done','prodata':res.data.result_set};
-        this.setState({ catapi_status: catapiStatus });
-      } else {
-        catapiStatus['cat_'+cat_id] = {'apistatus':'done','prodata':Array()};
-        this.setState({ catapi_status: catapiStatus });
-      }
-     });
+    axios
+      .get(
+        apiUrl + "products/products_list?company_category=" + cat_id,
+        headerconfig
+      )
+      .then((res) => {
+        //hideLoaderLst('trans-page-inner','class');
+        if (res.data.status === "ok") {
+          catapiStatus["cat_" + cat_id] = {
+            apistatus: "done",
+            prodata: res.data.result_set,
+          };
+          this.setState({ catapi_status: catapiStatus });
+        } else {
+          catapiStatus["cat_" + cat_id] = {
+            apistatus: "done",
+            prodata: Array(),
+          };
+          this.setState({ catapi_status: catapiStatus });
+        }
+      });
   }
 
   nevTabFun(tabTxt, event) {
@@ -168,51 +210,75 @@ class Vouchers extends Component {
 
   allVouchersList() {
     let selectedCateId = this.state.selected_cate_id;
-    if(this.state.proapi_status == 'done') {
-    let productList = this.state.productList;
-    if (Object.keys(productList).length > 0) {
-      const productListHtml = productList.map((product, rwInt) => {
-        let msnCls = "";
-        let proImg =
-          product.product_thumbnail != "" ? product.product_thumbnail : noImage;
-        let proName =
-          product.product_alias != ""
-            ? product.product_alias
-            : product.product_name;
-        let productPrice =
-          product.product_price != "" ? parseInt(product.product_price) : 0;
-        return (
-          <li>
-            <figure>
-              <img src={proImg} />
-            </figure>
-            <figcaption>
-              <h5>{proName}</h5>
-              <p>Valid Till {product.product_voucher_expiry_datetxt}</p>
-              <span>
-                {productPrice} <img src={coin} />
-              </span>
-              <Link
-                to={"/vouchers/" + product.product_slug}
-                title="Vouchers View"
-                className="button"
-              >
-                Redeem
-              </Link>
-            </figcaption>
-          </li>
-        );
-      });
+    if (this.state.proapi_status == "done") {
+      let productList = this.state.productList;
+      if (Object.keys(productList).length > 0) {
+        const productListHtml = productList.map((product, rwInt) => {
+          let msnCls = "";
+          let proImg =
+            product.product_thumbnail != ""
+              ? product.product_thumbnail
+              : noImage;
+          let proName =
+            product.product_alias != ""
+              ? product.product_alias
+              : product.product_name;
+          let productPrice =
+            product.product_price != "" ? parseFloat(product.product_price) : 0;
+          return (
+            <li key={rwInt}>
+              <figure>
+                <img src={proImg} />
+              </figure>
+              <figcaption>
+                <h5>{proName}</h5>
+                <p>Valid Till {product.product_voucher_expiry_datetxt}</p>
+                <span>
+                  {productPrice} <img src={coin} />
+                </span>
+                <Link
+                  to={"/vouchers/" + product.product_slug}
+                  title="Vouchers View"
+                  className="button"
+                >
+                  Redeem
+                </Link>
+              </figcaption>
+            </li>
+          );
+        });
 
-      return <ul className={(selectedCateId == 'companycat')?'':'display-none-cls'}>{productListHtml}</ul>;
+        return (
+          <ul
+            className={selectedCateId == "companycat" ? "" : "display-none-cls"}
+          >
+            {productListHtml}
+          </ul>
+        );
+      } else {
+        return (
+          <div
+            className={selectedCateId == "companycat" ? "" : "display-none-cls"}
+          >
+            {" "}
+            No Voushers Found{" "}
+          </div>
+        );
+      }
     } else {
-      return <div className={(selectedCateId == 'companycat')?'':'display-none-cls'}> No Voushers Found </div>;
-    }
-    } else {
-      let ulclsNm = (selectedCateId == 'companycat') ? 'intvl-catlst intvlcatid_companycat' : 'intvl-catlst intvlcatid_companycat display-none-cls';
-      return (<ul className={ulclsNm}>
-            <li className="intvl-catlst-li loader-main-cls"><div className="spinner-border loader-sub-div" role="status"><span className="visually-hidden">Loading...</span></div></li>
-            </ul>);
+      let ulclsNm =
+        selectedCateId == "companycat"
+          ? "intvl-catlst intvlcatid_companycat"
+          : "intvl-catlst intvlcatid_companycat display-none-cls";
+      return (
+        <ul className={ulclsNm}>
+          <li className="intvl-catlst-li loader-main-cls">
+            <div className="spinner-border loader-sub-div" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </li>
+        </ul>
+      );
     }
   }
 
@@ -222,21 +288,29 @@ class Vouchers extends Component {
     let catapiStatus = this.state.catapi_status;
     if (Object.keys(categoryList).length > 0) {
       const categoryListHtml = categoryList.map((category, rwInt) => {
-        let catapiData = (catapiStatus['cat_'+category.cate_id] != undefined && catapiStatus['cat_'+category.cate_id] != '') ? catapiStatus['cat_'+category.cate_id] : [];
-        if(Object.keys(catapiData).length > 0) {
-          if(catapiData.apistatus == 'done') {
+        let catapiData =
+          catapiStatus["cat_" + category.cate_id] != undefined &&
+          catapiStatus["cat_" + category.cate_id] != ""
+            ? catapiStatus["cat_" + category.cate_id]
+            : [];
+        if (Object.keys(catapiData).length > 0) {
+          if (catapiData.apistatus == "done") {
             let productList = catapiData.prodata;
             if (Object.keys(productList).length > 0) {
               const productListHtml = productList.map((product, rwInt3) => {
                 let msnCls = "";
                 let proImg =
-                  product.product_thumbnail != "" ? product.product_thumbnail : noImage;
+                  product.product_thumbnail != ""
+                    ? product.product_thumbnail
+                    : noImage;
                 let proName =
                   product.product_alias != ""
                     ? product.product_alias
                     : product.product_name;
                 let productPrice =
-                  product.product_price != "" ? parseInt(product.product_price) : 0;
+                  product.product_price != ""
+                    ? parseInt(product.product_price)
+                    : 0;
                 return (
                   <li>
                     <figure>
@@ -259,22 +333,46 @@ class Vouchers extends Component {
                   </li>
                 );
               });
-        
-              return <ul className={(selectedCateId == category.cate_id)?'':'display-none-cls'}>{productListHtml}</ul>;
+
+              return (
+                <ul
+                  className={
+                    selectedCateId == category.cate_id ? "" : "display-none-cls"
+                  }
+                >
+                  {productListHtml}
+                </ul>
+              );
             } else {
-              let ulclsNm = (selectedCateId == category.cate_id) ? 'intvl-catlst intvlcatid_'+category.cate_id : 'intvl-catlst intvlcatid_'+category.cate_id+' display-none-cls';
+              let ulclsNm =
+                selectedCateId == category.cate_id
+                  ? "intvl-catlst intvlcatid_" + category.cate_id
+                  : "intvl-catlst intvlcatid_" +
+                    category.cate_id +
+                    " display-none-cls";
               return <div className={ulclsNm}> No Voushers Found </div>;
             }
           } else {
-            let ulclsNm = (selectedCateId == category.cate_id) ? 'intvl-catlst intvlcatid_'+category.cate_id : 'intvl-catlst intvlcatid_'+category.cate_id+' display-none-cls';
-            return (<ul className={ulclsNm}>
-                  <li className="intvl-catlst-li loader-main-cls"><div className="spinner-border loader-sub-div" role="status"><span className="visually-hidden">Loading...</span></div></li>
-                  </ul>);
+            let ulclsNm =
+              selectedCateId == category.cate_id
+                ? "intvl-catlst intvlcatid_" + category.cate_id
+                : "intvl-catlst intvlcatid_" +
+                  category.cate_id +
+                  " display-none-cls";
+            return (
+              <ul className={ulclsNm}>
+                <li className="intvl-catlst-li loader-main-cls">
+                  <div className="spinner-border loader-sub-div" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </li>
+              </ul>
+            );
           }
         }
       });
 
-      return <>{categoryListHtml}</>;
+      return categoryListHtml;
     }
   }
 
@@ -381,39 +479,54 @@ class Vouchers extends Component {
 
   selectedCat(category, event) {
     event.preventDefault();
-    let selected_cate_id = (category == 'companycat') ? category : category.cate_id;
-    this.setState({selected_cate_id: selected_cate_id});
+    let selected_cate_id =
+      category == "companycat" ? category : category.cate_id;
+    this.setState({ selected_cate_id: selected_cate_id });
   }
 
   catListing() {
-
     let categoryList = this.state.category_list;
     let selected_cate_id = this.state.selected_cate_id;
     let selectedcompany_data = this.state.selectedcompany_data;
-    if(Object.keys(categoryList).length > 0) {
-      const categoryHtml = categoryList.map((category, rwInt) => {
-        let msnCls = (category.cate_id == selected_cate_id) ? 'active' : '';
-        return (<li className={msnCls} onClick={this.selectedCat.bind(this,category)}>
-                <a href="javascript:void(0);">{category.cate_name}</a>
-               </li>);
-        });
-        let msnClsTxt = (selected_cate_id=='companycat') ? 'active' : '';
-        return(<ul>
-                {(Object.keys(selectedcompany_data).length > 0) && <li className={msnClsTxt} onClick={this.selectedCat.bind(this,'companycat')}>
-                  <a href="javascript:void(0);">{selectedcompany_data.company_name}</a>
-                </li>}
-                {categoryHtml}
-              </ul>);
+    if (Object.keys(categoryList).length > 0) {
+      let msnClsTxt = selected_cate_id == "companycat" ? "active" : "";
+      return (
+        <ul>
+          {Object.keys(selectedcompany_data).length > 0 && (
+            <li
+              className={msnClsTxt}
+              onClick={this.selectedCat.bind(this, "companycat")}
+              key={"01"}
+            >
+              <a href={void 0}>{selectedcompany_data.company_name}</a>
+            </li>
+          )}
+          {categoryList.map((category, rwInt) => {
+            let msnCls = category.cate_id == selected_cate_id ? "active" : "";
+            return (
+              <li
+                className={msnCls}
+                onClick={this.selectedCat.bind(this, category)}
+                key={rwInt}
+              >
+                <a href={void 0}>{category.cate_name}</a>
+              </li>
+            );
+          })}
+        </ul>
+      );
     }
-    
   }
 
   render() {
     let activetab = this.state.activetab;
     let myAvblPoints = 0;
     let customerData = this.state.customerData;
-    if(Object.keys(customerData).length > 0) {
-      myAvblPoints = (customerData.customer_available_points != '') ? customerData.customer_available_points : 0;
+    if (Object.keys(customerData).length > 0) {
+      myAvblPoints =
+        customerData.customer_available_points != ""
+          ? customerData.customer_available_points
+          : 0;
     }
     return (
       <div className="main-div">
@@ -422,14 +535,21 @@ class Vouchers extends Component {
         <div className="rel">
           <div className="container">
             <div className="vouchers-mypoints">
-              <span>
-                <b>Avbl. Points: </b>{myAvblPoints+' '} <img src={coin} />
-              </span>
+              <div className="overview">
+                <h5>Available Points</h5>
+                <h2>
+                  {myAvblPoints} <img src={coin} alt="Coin" />
+                </h2>
+              </div>
+              {/*  <span>
+                <b>Avbl. Points: </b>
+                {myAvblPoints + " "} <img src={coin} />
+              </span> */}
             </div>
             <div className="vouchers-hwitw">
-              <a href="#">
+              <Link to={"/how-it-works"}>
                 <img src={gui} /> <span>How it works</span>
-              </a>
+              </Link>
             </div>
             <div className="vouchers-list textcenter">
               <div className="vouchers-nav">
@@ -438,29 +558,27 @@ class Vouchers extends Component {
                     className={activetab == "all" ? "active" : ""}
                     onClick={this.nevTabFun.bind(this, "all")}
                   >
-                    <a href="#">All</a>{" "}
+                    <a href={void 0}>All</a>
                   </li>
                   <li
                     className={activetab == "available" ? "active" : ""}
                     onClick={this.nevTabFun.bind(this, "available")}
                   >
-                    <a href="#">
+                    <a href={void 0}>
                       Available ({this.state.available_promo_count})
-                    </a>{" "}
+                    </a>
                   </li>
                   <li
                     className={activetab == "redeemed" ? "active" : ""}
                     onClick={this.nevTabFun.bind(this, "redeemed")}
                   >
-                    <a href="#">Redeemed</a>{" "}
+                    <a href={void 0}>Redeemed</a>
                   </li>
                 </ul>
               </div>
               <div className="vouchers-category">
                 <div className="vouchers-cainner">
-                  <ul>
-                    {this.catListing()}
-                  </ul>
+                  <ul>{this.catListing()}</ul>
                 </div>
               </div>
               <div className="vouchers-list-body">
@@ -475,10 +593,10 @@ class Vouchers extends Component {
         <footer className="footer-main">
           <IonFooter collapse="fade">
             <div className="nav-full-two">
-              <a href="javascript:void(0)" className="active">
+              <a href={void 0} className="active">
                 Points Voucher
               </a>
-              <a href="javascript:void(0)">Buy Voucher</a>
+              <a href={void 0}>Buy Voucher</a>
             </div>
           </IonFooter>
         </footer>

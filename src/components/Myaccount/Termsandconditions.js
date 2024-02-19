@@ -1,65 +1,52 @@
 /* eslint-disable */
 import React, { Component } from "react";
-import { Link, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import axios from "axios";
-
 import Header from "../Layout/Header";
-import Footer from "../Layout/Footer";
-
 import cookie from "react-cookies";
-import { GET_STATICBLOCKS_LIST } from "../../actions";
-import { apiUrl, unquieID } from "../Settings/Config";
+import { unquieID } from "../Settings/Config";
 
-import "../../common/css/owl.carousel.css";
-
-var Parser = require('html-react-parser');
+var Parser = require("html-react-parser");
 
 class Termsandconditions extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      current_page: 'T & C',
+      current_page: "T & C",
       staticblocksList: [],
-      termsandcondInfo : '',
+      termsandcondInfo: "",
     };
 
-    if(cookie.load("UserId") === undefined) {
+    if (cookie.load("UserId") === undefined) {
       props.history.push("/");
     }
 
-    if(unquieID == '') {
-          props.history.push("/home");
+    if (unquieID == "") {
+      props.history.push("/home");
     }
-
-    this.props.getStaticblocksList("&slug=terms-conditions");
   }
-  componentDidMount() {
-    //$("body").addClass("hide-overlay");
-  }
-
   componentWillReceiveProps(PropsDt) {
-    if(this.state.staticblocksList !== PropsDt.staticblocks) {
-        this.setState({ staticblocksList: PropsDt.staticblocks }, function () {
-          this.setMemberInfo();
-        });
+    if (this.state.staticblocksList !== PropsDt.staticblocks) {
+      this.setState({ staticblocksList: PropsDt.staticblocks }, function () {
+        this.setMemberInfo();
+      });
     }
   }
 
   setMemberInfo() {
     let staticblocksList = this.state.staticblocksList;
-    let termsandcondInfo = '';
-    if(Object.keys(staticblocksList).length > 0) {
-      const staticblockHtml = staticblocksList.map((staticblock, rwInt) => {
-        if(staticblock.staticblocks_slug == 'terms-conditions') {
+    let termsandcondInfo = "";
+    if (Object.keys(staticblocksList).length > 0) {
+      staticblocksList.map((staticblock) => {
+        if (staticblock.staticblocks_slug == "terms-conditions") {
           termsandcondInfo = staticblock.staticblocks_description;
         }
-        return(staticblock);
+        return staticblock;
       });
     }
-    let termsandcondInfoHtml = (termsandcondInfo != '') ? Parser(termsandcondInfo) : '';
+    let termsandcondInfoHtml =
+      termsandcondInfo != "" ? Parser(termsandcondInfo) : "";
     this.setState({ termsandcondInfo: termsandcondInfoHtml });
-
   }
 
   render() {
@@ -67,16 +54,15 @@ class Termsandconditions extends Component {
     return (
       <div className="main-div">
         <Header mainpagestate={this.state} prntPagePrps={this.props} />
-        
+
         <div className="rel">
           <div className="container">
             <div className="termsandcond-info">
-                <br></br>
-                {termsandcondInfo}
+              <br></br>
+              {termsandcondInfo}
             </div>
           </div>
         </div>
-
       </div>
     );
   }
@@ -95,10 +81,9 @@ const mapStateTopProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    getStaticblocksList: (params) => {
-      dispatch({ type: GET_STATICBLOCKS_LIST, params });
-    },
-  };
+  return "";
 };
-export default connect(mapStateTopProps, mapDispatchToProps)(withRouter(Termsandconditions));
+export default connect(
+  mapStateTopProps,
+  mapDispatchToProps
+)(withRouter(Termsandconditions));

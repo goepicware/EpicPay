@@ -1,43 +1,29 @@
 /* eslint-disable */
 import React, { Component } from "react";
-import { Link, withRouter } from "react-router-dom";
-import { connect } from "react-redux";
 import axios from "axios";
 import Header from "../Layout/Header";
-import Footer from "../Layout/Footer";
 import cookie from "react-cookies";
-import { GET_STORE_LIST } from "../../actions";
-import { apiUrl, unquieID } from "../Settings/Config";
+import { apiUrl, unquieID, headerconfig } from "../Settings/Config";
 import { showLoaderLst, hideLoaderLst } from "../Helpers/SettingHelper";
-
-import "../../common/css/owl.carousel.css";
 import coin from "../../common/images/coin.svg";
-
-import user from "../../common/images/user.svg";
-import nav from "../../common/images/navigation.svg";
-
-import ot from "../../common/images/outlet-place.png";
-import back from "../../common/images/back-arrow.svg";
-
 var qs = require("qs");
-
 class History extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      current_page: 'History',
-      activetab : 'transaction',
+      current_page: "History",
+      activetab: "transaction",
       transactionList: [],
       toppupList: [],
       bannerList: [],
     };
 
-    if(cookie.load("UserId") === undefined) {
-        props.history.push("/");
+    if (cookie.load("UserId") === undefined) {
+      props.history.push("/");
     }
 
-    if(unquieID == '') {
-          props.history.push("/home");
+    if (unquieID == "") {
+      props.history.push("/home");
     }
 
     this.getTransData();
@@ -47,43 +33,47 @@ class History extends Component {
   getTransData() {
     var postObject = {
       app_id: unquieID,
-      customer_id: cookie.load("UserId")
+      customer_id: cookie.load("UserId"),
     };
-    showLoaderLst('trans-page-inner','class');
-    axios.post(apiUrl + "customer/cust_transaction", qs.stringify(postObject))
-    .then((res) => {
-      hideLoaderLst('trans-page-inner','class');
-      if(res.data.status === "ok") {
-        this.setState({ transactionList: res.data.result });
-      } else {
-        this.setState({ transactionList: Array() });
-      }
-     });
+    showLoaderLst("trans-page-inner", "class");
+    axios
+      .post(
+        apiUrl + "customer/cust_transaction",
+        qs.stringify(postObject),
+        headerconfig
+      )
+      .then((res) => {
+        hideLoaderLst("trans-page-inner", "class");
+        if (res.data.status === "ok") {
+          this.setState({ transactionList: res.data.result });
+        } else {
+          this.setState({ transactionList: Array() });
+        }
+      });
   }
 
   getToppupData() {
     var postObject = {
       app_id: unquieID,
-      customer_id: cookie.load("UserId")
+      customer_id: cookie.load("UserId"),
     };
-    axios.post(apiUrl + "customer/topuphistory", qs.stringify(postObject))
-    .then((res) => {
-      if(res.data.status === "ok") {
-        this.setState({ toppupList: res.data.result });
-      } else {
-        this.setState({ toppupList: Array() });
-      }
-     });
+    axios
+      .post(
+        apiUrl + "customer/topuphistory",
+        qs.stringify(postObject),
+        headerconfig
+      )
+      .then((res) => {
+        if (res.data.status === "ok") {
+          this.setState({ toppupList: res.data.result });
+        } else {
+          this.setState({ toppupList: Array() });
+        }
+      });
   }
 
   componentDidMount() {
     $("body").addClass("hide-overlay");
-  }
-
-  componentWillReceiveProps(PropsDt) {
-    if (this.state.storeList !== PropsDt.storeList) {
-      //this.setState({ storeList: PropsDt.storeList });
-    }
   }
 
   nevTabFun(tabTxt, event) {
@@ -93,52 +83,63 @@ class History extends Component {
 
   transactionList() {
     let transactionList = this.state.transactionList;
-    if(Object.keys(transactionList).length > 0) {
-
+    if (Object.keys(transactionList).length > 0) {
       const transactionListHtml = transactionList.map((transaction, rwInt) => {
-            let msnCls = '';
-            return (<li>
-              <div className="hlm-lhs">
-                {(transaction.transaction_qr_type == 'products')?<p>{transaction.transaction_product_name}</p>:<p>Credits ( direct pay )</p>}
-                <span>{transaction.transaction_created_on}</span>
-              </div>
-              <div className="hlm-rhs">
-                <strong>
-                {(transaction.transaction_qr_type == 'products') ? <>{transaction.transaction_qr_usered_amount} <img src={coin} /></>:<>${transaction.transaction_qr_usered_amount}</>}
-                </strong>
-              </div>
-            </li>);
+        let msnCls = "";
+        return (
+          <li>
+            <div className="hlm-lhs">
+              {transaction.transaction_qr_type == "products" ? (
+                <p>{transaction.transaction_product_name}</p>
+              ) : (
+                <p>Credits ( direct pay )</p>
+              )}
+              <span>{transaction.transaction_created_on}</span>
+            </div>
+            <div className="hlm-rhs">
+              <strong>
+                {transaction.transaction_qr_type == "products" ? (
+                  <>
+                    {transaction.transaction_qr_usered_amount}{" "}
+                    <img src={coin} />
+                  </>
+                ) : (
+                  <>${transaction.transaction_qr_usered_amount}</>
+                )}
+              </strong>
+            </div>
+          </li>
+        );
       });
 
-      return(<ul>{transactionListHtml}</ul>);
-
+      return <ul>{transactionListHtml}</ul>;
     } else {
-      return(<div> No History Of Transactions </div>);
+      return <div> No History Of Transactions </div>;
     }
   }
 
   walletToppupList() {
     let toppupList = this.state.toppupList;
-    if(Object.keys(toppupList).length > 0) {
-
+    if (Object.keys(toppupList).length > 0) {
       const toppupListHtml = toppupList.map((toppup, rwInt) => {
-            let msnCls = '';
-            return (<li>
-              <div className="hlm-lhs">
-                <p>{toppup.wallettopup_display_name}</p>
-                <span>{toppup.wallettopup_created_on}</span>
-              </div>
-              <div className="hlm-rhs">
-                <strong>${toppup.wallettopup_total_amount}</strong>
-                <span>{toppup.wallettopup_total_credits} credits</span>
-              </div>
-            </li>);
+        let msnCls = "";
+        return (
+          <li>
+            <div className="hlm-lhs">
+              <p>{toppup.wallettopup_display_name}</p>
+              <span>{toppup.wallettopup_created_on}</span>
+            </div>
+            <div className="hlm-rhs">
+              <strong>${toppup.wallettopup_total_amount}</strong>
+              <span>{toppup.wallettopup_total_credits} credits</span>
+            </div>
+          </li>
+        );
       });
 
-      return(<ul>{toppupListHtml}</ul>);
-
+      return <ul>{toppupListHtml}</ul>;
     } else {
-      return(<div> No History Of Wallet Toppup </div>);
+      return <div> No History Of Wallet Toppup </div>;
     }
   }
 
@@ -147,17 +148,22 @@ class History extends Component {
     return (
       <div className="main-div trans-page-inner">
         <Header mainpagestate={this.state} prntPagePrps={this.props} />
-        
+
         <div className="rel">
           <div className="container">
             <div className="history-list">
-
               <div className="vouchers-nav">
                 <ul>
-                  <li className={(activetab == 'transaction')?"active":""} onClick={this.nevTabFun.bind(this,'transaction')}>
+                  <li
+                    className={activetab == "transaction" ? "active" : ""}
+                    onClick={this.nevTabFun.bind(this, "transaction")}
+                  >
                     <a href="#">Transactions</a>{" "}
                   </li>
-                  <li className={(activetab == 'toppup')?"active":""} onClick={this.nevTabFun.bind(this,'toppup')}>
+                  <li
+                    className={activetab == "toppup" ? "active" : ""}
+                    onClick={this.nevTabFun.bind(this, "toppup")}
+                  >
                     <a href="#">Wallet Top up</a>{" "}
                   </li>
                 </ul>
@@ -165,11 +171,10 @@ class History extends Component {
 
               <div className="history-filter"></div>
               <div className="history-list-main">
-              {(activetab == 'transaction') && this.transactionList()}
-              {(activetab == 'toppup') && this.walletToppupList()}
-              
-              
-               {/*<ul>
+                {activetab == "transaction" && this.transactionList()}
+                {activetab == "toppup" && this.walletToppupList()}
+
+                {/*<ul>
                   <li>
                     <div className="hlm-lhs" style={{textAlign:"center",width:"100%"}}>
                       <p>&nbsp;</p>
@@ -230,7 +235,6 @@ class History extends Component {
                     </div>
                   </li>
                 </ul>*/}
-                
               </div>
             </div>
           </div>
@@ -240,23 +244,4 @@ class History extends Component {
   }
 }
 
-const mapStateTopProps = (state) => {
-  var storelistArr = Array();
-  if (Object.keys(state.storelist).length > 0) {
-    if (state.storelist[0].status === "ok") {
-      storelistArr = state.storelist[0].result;
-    }
-  }
-  return {
-    storeList: storelistArr,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    getStoreList: (params) => {
-      dispatch({ type: GET_STORE_LIST, params });
-    },
-  };
-};
-export default connect(mapStateTopProps, mapDispatchToProps)(withRouter(History));
+export default History;
