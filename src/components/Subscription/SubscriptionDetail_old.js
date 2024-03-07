@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import cookie from "react-cookies";
-import { GET_CUSTOMER_DETAILS } from "../../actions";
+import { GET_CUSTOMER_DETAILS, GET_PRODUCT_LIST } from "../../actions";
 import { unquieID } from "../Settings/Config";
 import { stripslashes } from "../Helpers/SettingHelper";
 
@@ -15,20 +15,13 @@ import noImage from "../../common/images/no-image.jpg";
 import coin from "../../common/images/coin.svg";
 var Parser = require("html-react-parser");
 
-class myVoucherDetail extends Component {
+class voucherDetail extends Component {
   constructor(props) {
     super(props);
-
-    var voucherData =
-      localStorage.getItem("voucherData") === null
-        ? ""
-        : localStorage.getItem("voucherData");
-    voucherData = voucherData !== "" ? JSON.parse(voucherData) : [];
-
     this.state = {
       current_page: "VouchersDetail",
       customerData: [],
-      voucherData: voucherData,
+      productList: [],
     };
 
     if (cookie.load("UserId") === undefined) {
@@ -39,13 +32,18 @@ class myVoucherDetail extends Component {
       props.history.push("/home");
     }
 
-    if (Object.keys(voucherData).length > 0) {
-    } else {
-      props.history.push("/vouchers");
-    }
-
     var customerId = cookie.load("UserId");
     this.props.getCustomerDetails("&customer_id=" + customerId);
+    let slugValue =
+      typeof props.match.params.slugValue !== "undefined"
+        ? props.match.params.slugValue
+        : "";
+    console.log("slugValue", slugValue);
+    if (slugValue != "" && slugValue != undefined) {
+      this.props.getProductList("product_type=6&product_slug=" + slugValue);
+    } else {
+      props.history.push("/");
+    }
   }
 
   componentDidMount() {
@@ -56,48 +54,51 @@ class myVoucherDetail extends Component {
     if (this.state.customerData !== PropsDt.customerdetails) {
       this.setState({ customerData: PropsDt.customerdetails });
     }
+    if (this.state.productList !== PropsDt.productlist) {
+      this.setState({ productList: PropsDt.productlist });
+    }
   }
 
-  redeemNow(voucherData, event) {
+  redeemNow(voucherId, currentUniqueID, event) {
     event.preventDefault();
-    let productId =
-      Object.keys(voucherData.promo_products).length > 0
-        ? voucherData.promo_products[0].product_primary_id
-        : "";
-    console.log("promotion_id", voucherData.promotion_id);
-    /*cookie.save("voucherId", voucherData.promotion_id, { path: "/" });
-    cookie.save("freeProductId", productId, { path: "/" });
-    cookie.save("voucherType", 'voucher', { path: "/" });
-    cookie.save("isFreeVoucher", 'yes', { path: "/" });*/
-    localStorage.setItem("voucherId", voucherData.promotion_id);
-    localStorage.setItem("freeProductId", productId);
+    console.log(voucherId, currentUniqueID, "currentUniqueID");
+    /*cookie.save("voucherId", voucherId);
+    cookie.save("voucherType", 'voucher');*/
+    localStorage.setItem("voucherId", voucherId);
+    localStorage.setItem("freeProductId", "");
     localStorage.setItem("voucherType", "voucher");
-    localStorage.setItem("isFreeVoucher", "yes");
+    localStorage.setItem("isFreeVoucher", "no");
     let $_this = this;
+    var packagedetails = {
+      currentUniqueID: currentUniqueID,
+    };
     setTimeout(function () {
-      $_this.props.history.push("/redeem");
+      $_this.props.history.push({
+        pathname: "/redeem",
+        state: packagedetails,
+      });
     }, 0);
   }
 
   render() {
-    let voucherData = this.state.voucherData;
+    let productList = this.state.productList;
     let customerData = this.state.customerData;
-    if (Object.keys(voucherData).length > 0) {
+    if (Object.keys(productList).length > 0) {
       let proImg =
-        voucherData.promotion_image != ""
-          ? voucherData.promotion_image
+        productList[0].product_thumbnail != ""
+          ? productList[0].product_thumbnail
           : noImage;
       let proName =
-        voucherData.promotion_created_from == "Cron"
-          ? voucherData.promotion_desc
-          : voucherData.promo_code;
+        productList[0].product_alias != ""
+          ? productList[0].product_alias
+          : productList[0].product_name;
       let productPrice =
-        voucherData.promotion_max_amt != ""
-          ? parseInt(voucherData.promotion_max_amt)
+        productList[0].product_price != ""
+          ? parseFloat(productList[0].product_price)
           : 0;
       let productInfo =
-        voucherData.promo_desc_showtext !== ""
-          ? Parser(stripslashes(voucherData.promo_desc_showtext))
+        productList[0].product_long_description !== ""
+          ? Parser(stripslashes(productList[0].product_long_description))
           : "";
       let customerAvailablePoints = 0;
       if (
@@ -120,12 +121,12 @@ class myVoucherDetail extends Component {
                 <div className="voucher-detail-header">
                   <h2>{stripslashes(proName)}</h2>
                   <div className="point-coin">
-                    {voucherData.promotion_created_from != "Cron" && (
-                      <strong>
-                        {productPrice} <img src={coin} />
-                      </strong>
-                    )}
-                    <span>Valid Till {voucherData.promo_valid_till}</span>
+                    <strong>
+                      {productPrice} <img src={coin} />
+                    </strong>
+                    <span>
+                      Valid Till {productList[0].product_voucher_expiry_datetxt}
+                    </span>
                   </div>
                 </div>
                 <div className="voucher-detail-body">
@@ -138,14 +139,31 @@ class myVoucherDetail extends Component {
 
           <IonFooter collapse="fade">
             <div className="sticky-redeem">
-              <div className="sticky-redeem-bg myvchr-redeem">
-                <a
-                  href={void 0}
-                  className="button "
-                  onClick={this.redeemNow.bind(this, voucherData)}
-                >
-                  Redeem Now
-                </a>
+              <div className="sticky-redeem-bg">
+                <span>
+                  <img src={coin} /> Balance :{" "}
+                  <strong>{customerAvailablePoints}</strong>
+                </span>
+                {parseFloat(customerAvailablePoints) < productPrice ? (
+                  <a
+                    href="javascrip:void(0)"
+                    className="button low-balance-cls"
+                  >
+                    Low Balance
+                  </a>
+                ) : (
+                  <a
+                    href={void 0}
+                    className="button "
+                    onClick={this.redeemNow.bind(
+                      this,
+                      productList[0].product_primary_id,
+                      productList[0].product_company_unique_id
+                    )}
+                  >
+                    Redeem Now
+                  </a>
+                )}
               </div>
             </div>
           </IonFooter>
@@ -162,8 +180,15 @@ const mapStateTopProps = (state) => {
       customerdetailsArr = state.customerdetails[0].result_set;
     }
   }
+  var productlistArr = Array();
+  if (Object.keys(state.productlist).length > 0) {
+    if (state.productlist[0].status === "ok") {
+      productlistArr = state.productlist[0].result_set;
+    }
+  }
   return {
     customerdetails: customerdetailsArr,
+    productlist: productlistArr,
   };
 };
 
@@ -172,9 +197,12 @@ const mapDispatchToProps = (dispatch) => {
     getCustomerDetails: (params) => {
       dispatch({ type: GET_CUSTOMER_DETAILS, params });
     },
+    getProductList: (params) => {
+      dispatch({ type: GET_PRODUCT_LIST, params });
+    },
   };
 };
 export default connect(
   mapStateTopProps,
   mapDispatchToProps
-)(withRouter(myVoucherDetail));
+)(withRouter(voucherDetail));

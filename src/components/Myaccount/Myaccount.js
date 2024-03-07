@@ -1,7 +1,8 @@
 /* eslint-disable */
 import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import { connect } from "react-redux";
+import axios from "axios";
 import cookie from "react-cookies";
 
 import Header from "../Layout/Header";
@@ -12,14 +13,16 @@ import {
   GET_MISSIONS_LIST,
   GET_REWARDSETTING_LIST,
 } from "../../actions";
-import { unquieID } from "../Settings/Config";
+import { apiUrl, unquieID, headerconfig } from "../Settings/Config";
 import { ordinalSuffixOf, showPriceValue } from "../Helpers/SettingHelper";
 import "../../common/css/owl.carousel.css";
+import { Instagram } from "react-content-loader";
 
 import walletlight from "../../common/images/wallet.svg";
 import coin from "../../common/images/coin.svg";
 import tick from "../../common/images/tick-red.svg";
 import qrCodeDfl from "../../common/images/qr-codeDfl.png";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
 class Myaccount extends Component {
   constructor(props) {
@@ -32,6 +35,9 @@ class Myaccount extends Component {
       missionList: [],
       mission_type: missiontype,
       rewardsettingsdata: [],
+      subscriptionLoad: true,
+      subscriptionList: [],
+      dispalySubscription: "",
     };
 
     if (cookie.load("UserId") === undefined) {
@@ -54,6 +60,7 @@ class Myaccount extends Component {
 
   componentDidMount() {
     $("body").addClass("hide-overlay");
+    this.loadSubscription();
   }
 
   componentWillReceiveProps(PropsDt) {
@@ -65,6 +72,129 @@ class Myaccount extends Component {
     }
     if (this.state.rewardsettingsdata !== PropsDt.rewardsettingslist) {
       this.setState({ rewardsettingsdata: PropsDt.rewardsettingslist });
+    }
+  }
+
+  loadSubscription() {
+    if (
+      unquieID !== "" &&
+      cookie.load("UserId") !== "" &&
+      typeof cookie.load("UserId") !== undefined &&
+      typeof cookie.load("UserId") !== "undefined"
+    ) {
+      axios
+        .get(
+          apiUrl +
+            "subscription/listubscription?customer_id=" +
+            cookie.load("UserId") +
+            "&UniqueID=" +
+            unquieID,
+          headerconfig
+        )
+        .then((res) => {
+          if (res.data.status === "ok") {
+            this.setState(
+              {
+                subscriptionList: res.data.result,
+              },
+              function () {
+                this.dispalySubscription();
+              }
+            );
+          } else {
+            this.setState({ subscriptionLoad: false });
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
+    }
+  }
+
+  dispalySubscription() {
+    var subscriptionList = "";
+    if (this.state.subscriptionList.length > 0) {
+      subscriptionList = this.state.subscriptionList.map((item, index) => {
+        var subscribePeriod = "";
+        if (item.subscribe_period === "W") {
+          subscribePeriod = "Weekly";
+        } else if (item.subscribe_period === "M") {
+          subscribePeriod = "Monthly";
+        } else if (item.subscribe_period === "Q") {
+          subscribePeriod = "Quarterly";
+        } else if (item.subscribe_period === "B") {
+          subscribePeriod = "Biannually";
+        } else if (item.subscribe_period === "A") {
+          subscribePeriod = "Annually";
+        }
+        var subscribstatus = "";
+        if (item.subscribe_status === "A") {
+          subscribstatus = "Active";
+        } else if (item.subscribe_status === "I") {
+          subscribstatus = "Inactive";
+        } else if (item.subscribe_status === "C") {
+          subscribstatus = "Cancelled";
+        } else if (item.subscribe_status === "P") {
+          subscribstatus = "Pending";
+        }
+        var subscribe_vouchers =
+          item.subscribe_vouchers !== "" && item.subscribe_vouchers !== null
+            ? JSON.parse(item.subscribe_vouchers)
+            : [];
+        return (
+          <li key={index}>
+            <span>
+              <b>
+                {item.subscribe_item_qty} X {subscribePeriod}{" "}
+                {item.subscribe_item_name}{" "}
+              </b>
+              {/* <b
+                className={
+                  item.subscribe_status === "C" ? "subscribe-cancel" : ""
+                }
+              >
+                {subscribstatus}
+              </b> */}
+              <br /> Started: {item.subscribe_start_date} | Next:{" "}
+              {item.subscribe_next_cycle}
+            </span>
+            <a href="" className="subscribe-view">
+              View
+            </a>{" "}
+            <figure>
+              <i
+                class="fa fa-info-circle"
+                aria-hidden="true"
+                data-tip
+                id={"happyFace" + index}
+              ></i>
+              <ReactTooltip
+                anchorId={"happyFace" + index}
+                type="success"
+                place="left"
+              >
+                {item.subscribe_item_type === "product" ? (
+                  <b>Voucher Subscription</b>
+                ) : (
+                  <b>Store Subscription</b>
+                )}
+                {subscribe_vouchers.length > 0 &&
+                  subscribe_vouchers.map((sItem, sIndex) => {
+                    return (
+                      <div key={sIndex}>
+                        {sItem.quantity} X {sItem.product_name}
+                      </div>
+                    );
+                  })}
+              </ReactTooltip>
+            </figure>
+          </li>
+        );
+      });
+      this.setState({
+        subscriptionList: subscriptionList,
+        subscriptionLoad: false,
+      });
     }
   }
 
@@ -284,20 +414,19 @@ class Myaccount extends Component {
                 <div className="wallet-lhs">
                   <div className="flex">
                     <img src={walletlight} />
-                    <span>Wallet</span>
+                    <span>
+                      {customerData?.common_setting?.company_name} Credits
+                    </span>
                   </div>
                   <em>Balance (as of {this.formatAMPM(new Date())})</em>
-                  <h1>
-                    <sup>$</sup>
-                    {customerData.custmap_available_credits + ".00"}
-                  </h1>
+                  <h1>{customerData.custmap_available_credits + ".00"}</h1>
 
                   <a
                     href={void 0}
                     className="button"
                     onClick={this.goToNavPage.bind(this, "topup")}
                   >
-                    Top Up
+                    Buy Credits
                   </a>
                 </div>
                 <div className="wallet-rhs">
@@ -333,6 +462,40 @@ class Myaccount extends Component {
                   </a>
                 </div>
               </div>
+              <div
+                className={`subs-create ${
+                  this.state.subscriptionLoad === false &&
+                  this.state.subscriptionList !== "" &&
+                  "subs-created"
+                }`}
+              >
+                {this.state.subscriptionLoad === false &&
+                  (this.state.subscriptionList !== "" ? (
+                    <>
+                      <div className="inner-subs-sub">
+                        <h3>Subscription</h3>
+                        <Link to={"/subscription"} className="button">
+                          Create
+                        </Link>
+                      </div>
+                      {this.state.subscriptionLoad === false ? (
+                        <ul className="my-subscription">
+                          {this.state.subscriptionList}
+                        </ul>
+                      ) : (
+                        ""
+                      )}
+                    </>
+                  ) : (
+                    <div className="inner-subs">
+                      <h3>Subscription</h3>
+                      <p>You don’t have any active subscription</p>
+                      <Link to={"/subscription"} className="button">
+                        Create
+                      </Link>
+                    </div>
+                  ))}
+              </div>
 
               <div className="upcoming-trans">
                 {this.rewardProLst(membership_spent_amount)}
@@ -348,6 +511,21 @@ class Myaccount extends Component {
             </div>
           </div>
 
+          <Footer />
+        </div>
+      );
+    } else {
+      return (
+        <div className="main-div">
+          <Header mainpagestate={this.state} prntPagePrps={this.props} />
+          <div className="rel">
+            <div className="container">
+              <Instagram
+                backgroundColor={"#c7c7c7"}
+                foregroundColor={"#c7c7c7"}
+              />
+            </div>
+          </div>
           <Footer />
         </div>
       );

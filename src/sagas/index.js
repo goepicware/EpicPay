@@ -7,6 +7,7 @@ import { watchGetStaticblocksList } from "./staticblocks";
 import { watchGetTopupplanList } from "./topupplanlist";
 import { watchGetPromotionList } from "./promotionlist";
 import { watchGetProductList } from "./productlist";
+import { watchGetSetting } from "./settings";
 
 export default function* () {
   yield all([
@@ -17,5 +18,6 @@ export default function* () {
     watchGetTopupplanList(),
     watchGetPromotionList(),
     watchGetProductList(),
+    watchGetSetting(),
   ]);
 }

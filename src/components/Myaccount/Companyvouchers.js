@@ -182,7 +182,10 @@ class Vouchers extends Component {
     //showLoaderLst('trans-page-inner','class');
     axios
       .get(
-        apiUrl + "products/products_list?company_category=" + cat_id,
+        apiUrl +
+          "products/products_list?company_category=" +
+          cat_id +
+          "&product_type=5",
         headerconfig
       )
       .then((res) => {
@@ -391,15 +394,16 @@ class Vouchers extends Component {
         (availablePromo, rwInt) => {
           let msnCls = "";
           let proImg =
-            availablePromo.promotion_image != ""
+            availablePromo.promotion_image !== "" &&
+            availablePromo.promotion_image !== null
               ? availablePromo.promotion_image
               : noImage;
           let proName =
-            availablePromo.promotion_created_from == "Cron"
+            availablePromo.promotion_created_from === "Cron"
               ? availablePromo.promotion_desc
               : availablePromo.promo_code;
           let productPrice =
-            availablePromo.promotion_max_amt != ""
+            availablePromo.promotion_max_amt !== ""
               ? availablePromo.promotion_max_amt
               : 0;
           return (
@@ -576,11 +580,13 @@ class Vouchers extends Component {
                   </li>
                 </ul>
               </div>
-              <div className="vouchers-category">
-                <div className="vouchers-cainner">
-                  <ul>{this.catListing()}</ul>
+              {activetab === "all" && (
+                <div className="vouchers-category">
+                  <div className="vouchers-cainner">
+                    <ul>{this.catListing()}</ul>
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="vouchers-list-body">
                 {activetab == "all" && this.allVouchersList()}
                 {activetab == "all" && this.catVouchersList()}

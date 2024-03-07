@@ -29,7 +29,7 @@ var stripePromise = "";
 
 var qs = require("qs");
 
-class Home extends Component {
+class Checkout extends Component {
   constructor(props) {
     super(props);
 
@@ -441,4 +441,7 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
-export default connect(mapStateTopProps, mapDispatchToProps)(withRouter(Home));
+export default connect(
+  mapStateTopProps,
+  mapDispatchToProps
+)(withRouter(Checkout));

@@ -2,6 +2,7 @@
 import cookie from "react-cookies";
 import $ from "jquery";
 var base64 = require("base-64");
+import Swal from "sweetalert2";
 
 /* stripslashes  */
 export const stripslashes = function (str) {
@@ -20,7 +21,7 @@ export const showAlert = function (header, message, type, autoClose = "No") {
     var icon = "";
     if (type === "success") {
       icon = "success";
-    } else if (type === "success") {
+    } else if (type === "warning") {
       icon = "warning";
     } else {
       icon = "error";

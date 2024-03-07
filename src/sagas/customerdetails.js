@@ -10,10 +10,11 @@ export const watchGetCustomerDetails = function* () {
 
 function* workerGetCustomerDetails(reqData) {
   try {
+    var unquieIDCond = reqData?.Unquie_ID ? reqData?.Unquie_ID : unquieID;
     const uri =
       apiUrl +
       "customer/customerdetail?app_id=" +
-      unquieID +
+      unquieIDCond +
       "" +
       reqData.params;
     const result = yield call(Axios.get, uri, headerconfig);

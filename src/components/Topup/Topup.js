@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { IonFooter } from "@ionic/react";
 import "@ionic/react/css/core.css";
 import cookie from "react-cookies";
+import { BulletList } from "react-content-loader";
 import { GET_CUSTOMER_DETAILS, GET_TOPUPPLAN_LIST } from "../../actions";
 import { unquieID } from "../Settings/Config";
 import Header from "../Layout/Header";
@@ -21,13 +22,14 @@ class Topup extends Component {
     planData = planData !== "" ? JSON.parse(planData) : [];
 
     this.state = {
-      current_page: "Top Up",
+      current_page: "Buy Credits",
       customerData: [],
       topupplanList: [],
       avbl_credits: 0,
       selectedplan: planData,
       tax_type: "",
       tax_percentage: 0,
+      loadding: true,
     };
 
     if (cookie.load("UserId") === undefined) {
@@ -82,6 +84,7 @@ class Topup extends Component {
         avbl_credits: avbl_credits,
         tax_type: tax_type,
         tax_percentage: tax_percentage,
+        loadding: false,
       });
     }
   }
@@ -175,7 +178,14 @@ class Topup extends Component {
 
           <div className="container">
             <div className="equalto textcenter">1 Credit = $1.00</div>
-            <div className="credit-list">{this.topupplanListing()}</div>
+            {this.state.loadding === true ? (
+              <BulletList
+                backgroundColor={"#c7c7c7"}
+                foregroundColor={"#c7c7c7"}
+              />
+            ) : (
+              <div className="credit-list">{this.topupplanListing()}</div>
+            )}
           </div>
         </div>
 

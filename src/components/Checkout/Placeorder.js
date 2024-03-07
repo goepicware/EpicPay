@@ -5,7 +5,7 @@ import axios from "axios";
 import Header from "../Layout/Header";
 import Footer from "../Layout/Footer";
 import { apiUrl, headerconfig, stripeReference } from "../Settings/Config";
-import { hideLoaderLst } from "../Helpers/SettingHelper";
+import { hideLoaderLst, showAlert } from "../Helpers/SettingHelper";
 import cookie from "react-cookies";
 import loadingImage from "../../common/images/loading_popup.gif";
 var Parser = require("html-react-parser");
@@ -18,7 +18,9 @@ class Placeorder extends Component {
       validateimage: loadingImage,
       processingText: "We are processing your order",
     };
-
+  }
+  componentDidMount() {
+    this.placeOrder();
     setTimeout(
       function () {
         $.magnificPopup.open({
@@ -33,9 +35,11 @@ class Placeorder extends Component {
       }.bind(this),
       300
     );
+  }
 
+  placeOrder() {
+    var history = this.props.history;
     var urlParams = new URLSearchParams(this.props.location.search);
-
     if (
       (urlParams.get("redirect_status") == "succeeded" ||
         urlParams.get("redirect_status") == "processing") &&
@@ -47,34 +51,67 @@ class Placeorder extends Component {
         cookie.load("payment_intent") +
         "&preference=" +
         stripeReference;
+      var payType = cookie.load("payType");
 
       cookie.remove("payment_intent", { path: "/" });
 
-      axios
-        .post(apiUrl + "wallettopup/topup", postObject, headerconfig)
-        .then((res) => {
-          hideLoaderLst("place-order-link", "class");
-          if (res.data.status === "ok") {
-            localStorage.removeItem("planData");
-            setTimeout(function () {
-              $.magnificPopup.close();
-              props.history.push("/myaccount");
-            }, 3000);
-          } else {
-            setTimeout(
-              function () {
-                this.setState({
-                  processingText: res.data.message,
-                });
-              }.bind(this),
-              300
-            );
-            setTimeout(function () {
-              $.magnificPopup.close();
-              props.history.push("/checkout");
-            }, 3000);
-          }
-        });
+      if (payType == "Subscription") {
+        axios
+          .post(
+            apiUrl + "subscription/createSubscription",
+            postObject,
+            headerconfig
+          )
+          .then((res) => {
+            hideLoaderLst("place-order-link", "class");
+            if (res.data.status === "ok") {
+              setTimeout(function () {
+                $.magnificPopup.close();
+                showAlert("Success", res.data.message, "success");
+                history.push("/myaccount");
+              }, 3000);
+            } else {
+              setTimeout(
+                function () {
+                  this.setState({
+                    processingText: res.data.message,
+                  });
+                }.bind(this),
+                300
+              );
+              setTimeout(function () {
+                $.magnificPopup.close();
+                history.push("/myaccount");
+              }, 3000);
+            }
+          });
+      } else {
+        axios
+          .post(apiUrl + "wallettopup/topup", postObject, headerconfig)
+          .then((res) => {
+            hideLoaderLst("place-order-link", "class");
+            if (res.data.status === "ok") {
+              localStorage.removeItem("planData");
+              setTimeout(function () {
+                $.magnificPopup.close();
+                history.push("/myaccount");
+              }, 3000);
+            } else {
+              setTimeout(
+                function () {
+                  this.setState({
+                    processingText: res.data.message,
+                  });
+                }.bind(this),
+                300
+              );
+              setTimeout(function () {
+                $.magnificPopup.close();
+                history.push("/checkout");
+              }, 3000);
+            }
+          });
+      }
     } else if (urlParams.get("status") == "failure") {
       setTimeout(
         function () {
@@ -87,22 +124,21 @@ class Placeorder extends Component {
       );
       setTimeout(function () {
         $.magnificPopup.close();
-        props.history.push("/checkout");
+        history.push("/checkout");
       }, 3000);
     } else {
       setTimeout(
         function () {
-          this.setState({
-            processingText:
-              "Please check in myaccount, to get <br/>order details.",
-          });
+          $.magnificPopup.close();
+          showAlert(
+            "Alert",
+            "Please check in myaccount, to get <br/>order details.",
+            "error"
+          );
+          history.push("/myaccount");
         }.bind(this),
         300
       );
-      setTimeout(function () {
-        $.magnificPopup.close();
-        props.history.push("/myaccount");
-      }, 3000);
     }
   }
 

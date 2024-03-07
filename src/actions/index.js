@@ -13,5 +13,5 @@ export const SET_PRODUCT_LIST = "setProductList";
 export const GET_PROMOTION_LIST = "getPromotionList";
 export const SET_PROMOTION_LIST = "setPromotionList";
 
-export const GET_GLOBAL_SETTINGS = "getGlobalSettings";
-export const SET_GLOBAL_SETTINGS = "setGlobalSettings";
+export const GET_SETTINGS = "getSettings";
+export const SET_SETTINGS = "setSettings";

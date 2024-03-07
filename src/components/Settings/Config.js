@@ -18,7 +18,7 @@ export const headerconfig = {
   headers: accesstoken,
 };
 
-export const baseUrl = "http://localhost:3000/";
+export const baseUrl = "http://localhost:3001/";
 //export const baseUrl = "https://epicpay.goepicware.com/";
 
 export const stripeReference = "epicpay";

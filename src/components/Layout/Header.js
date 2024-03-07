@@ -12,6 +12,7 @@ import wallet from "../../common/images/wallet.svg";
 import back from "../../common/images/back-arrow.svg";
 import walletlight from "../../common/images/wallet.svg";
 import homelg from "../../common/images/homelg.png";
+import epicpay from "../../common/images/epicpay.png";
 import { companyLogo } from "../Settings/Config";
 import { GET_STATICBLOCKS_LIST } from "../../actions";
 
@@ -95,16 +96,22 @@ class Header extends Component {
         <header className="header-main">
           <div className="header-action header-center-txt">
             <div className="container">
-              {activepage === "My Account" ? (
+              {activepage === "My Account" || activepage === "Epic" ? (
                 <>
                   <div className="ha-lhs">
-                    <Link to={"/home"} title="Home">
-                      {companyLogo != "" ? (
-                        <img className="dynmic-cmp-logo" src={companyLogo} />
-                      ) : (
-                        <img src={logo} />
-                      )}
-                    </Link>
+                    {activepage === "Epic" ? (
+                      <a href={void 0}>
+                        <img src={epicpay} />
+                      </a>
+                    ) : (
+                      <Link to={"/home"} title="Home">
+                        {companyLogo != "" ? (
+                          <img className="dynmic-cmp-logo" src={companyLogo} />
+                        ) : (
+                          <img src={logo} />
+                        )}
+                      </Link>
+                    )}
                   </div>
                 </>
               ) : (
@@ -112,7 +119,7 @@ class Header extends Component {
                   <div className="ha-lhs-arrow">
                     {activepage != "Epic" && (
                       <a
-                        href="#"
+                        href={void 0}
                         onClick={this.goToNavPage.bind(this, activepage)}
                       >
                         <img src={back} />
@@ -137,12 +144,12 @@ class Header extends Component {
                     </li>
                   )}
                   <li className="profile-user">
-                    <a href="#">
+                    <a href={void 0}>
                       <img src={user} />
                     </a>
                   </li>
                   <li className="navsbar">
-                    <a href="#" onClick={this.openMenuFun.bind(this)}>
+                    <a href={void 0} onClick={this.openMenuFun.bind(this)}>
                       <img src={nav} />
                     </a>
                   </li>
@@ -161,7 +168,7 @@ class Header extends Component {
                 title="Myaccount"
               >
                 {" "}
-                <img src={walletlight} /> Myaccount{" "}
+                <img src={walletlight} /> My Account{" "}
               </Link>
               <Link
                 to={"/refpage/vouchers"}

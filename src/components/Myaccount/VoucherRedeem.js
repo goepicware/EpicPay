@@ -39,16 +39,9 @@ class VoucherRedeem extends Component {
       isFreeVoucher = "Yes";
       freeProductId = freeProductIdTxt;
     }
-    var currentUniqueID =
-      this.props.location.state.currentUniqueID !== "" &&
-      typeof this.props.location.state.currentUniqueID !== undefined &&
-      typeof this.props.location.state.currentUniqueID !== "undefined"
-        ? this.props.location.state.currentUniqueID
-        : unquieID;
-    console.log(
-      this.props.location.state.currentUniqueID,
-      "this.props.location.state.currentUniqueID"
-    );
+    var currentUniqueID = this.props.location?.state?.currentUniqueID
+      ? this.props.location.state.currentUniqueID
+      : unquieID;
     this.state = {
       current_page: "VouchersRedeem",
       currentUniqueID: currentUniqueID,
@@ -232,11 +225,14 @@ class VoucherRedeem extends Component {
       )
       .then((res) => {
         var currentThis = this;
+        console.log(res.data.status, "res.data.status");
         if (res.data.status === "ok") {
           if (this.state.runingNum > 0) {
             setTimeout(function () {
               currentThis.checkingQRstatus();
-            }, 3000);
+            }, 2000);
+          } else {
+            this.setState({ inititalLoad: true });
           }
         } else if (res.data.status === "used") {
           Swal.fire({

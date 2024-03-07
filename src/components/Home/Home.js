@@ -8,7 +8,7 @@ import { apiUrl, baseUrl, unquieID } from "../Settings/Config";
 import { showLoaderLst, hideLoaderLst } from "../Helpers/SettingHelper";
 import update from "immutability-helper";
 import "../../common/css/owl.carousel.css";
-import logo from "../../common/images/logo.png";
+import logo from "../../common/images/epicpay.png";
 import user from "../../common/images/user.svg";
 import nav from "../../common/images/navigation.svg";
 import baner from "../../common/images/bannerd.jpeg";
@@ -337,9 +337,20 @@ class Home extends Component {
                 ? triggerfrom
                 : "myaccount";
             let $_this = this;
-            setTimeout(function () {
-              $_this.props.history.push("/" + triggerfrom);
-            }, 500);
+            console.log(this.props, "this.props");
+            if (this.props.location?.state) {
+              setTimeout(function () {
+                $_this.props.history.push({
+                  pathname: $_this.props.location.state.triggerFrom,
+                  state: $_this.props.location.state,
+                });
+              }, 500);
+            } else {
+              setTimeout(function () {
+                $_this.props.history.push("/" + triggerfrom);
+              }, 500);
+            }
+            return false;
           } else {
             this.setState({ regotp_error: res.data.message });
           }
@@ -561,7 +572,7 @@ class Home extends Component {
             {this.state.bottompopup == "regphone" && (
               <div className="welcome-phone">
                 <div className="wp-top">
-                  <h2>Welcome to Guardados</h2>
+                  <h2>Welcome to EpicPay</h2>
                   <p>Enter your phone number to create your account</p>
                 </div>
                 <div className="input-phone">
